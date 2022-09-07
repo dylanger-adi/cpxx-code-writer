@@ -1,6 +1,6 @@
-//Dylanger Gutierrez, 2022-08-09
-//Version 0.4
-//Added LCD and implementation work.
+//Dylanger Gutierrez, 2022-07-01 (previous date on 0.4 was incorrect)
+//Version 1.0
+//Initial usable release.  
 //
 //This is the code to drive the box to control the interface for CP parts.  Normally high, where 1 and 0 are determined by negative width.
 
@@ -89,7 +89,7 @@ void setup() {
   //writes splash screen
   lcd.write(0xFE);
   lcd.write(0x40);
-  lcd.write("Code Writer v0.4by Dylanger G.  ");//32 chars; version number
+  lcd.write("Code Writer v1.0by Dylanger G.  ");//32 chars; version number
   delay(10);
 
   // clear screen
@@ -101,7 +101,7 @@ void setup() {
   writeBacklightColor(63,63,63);
 
   //splash screen initial text
-  lcd.write("Code Writer v0.4by Dylanger G.  ");//32 chars; version number
+  lcd.write("Code Writer v1.0by Dylanger G.  ");//32 chars; version number
 
 }
 
@@ -135,15 +135,16 @@ void loop() {
     updateScreen(buttonState,writebuf,buflength);
   }
   
-  if(buttonState==4) {
-    for(int i=0;i<3;i++) {
-      digitalWrite(LEDPIN,HIGH);
-      delay(100);
-      digitalWrite(LEDPIN,LOW);
-      delay(30);
-    }
-  }
+//  if(buttonState==4) {  //not currently used but could be added
+//    for(int i=0;i<3;i++) {
+//      digitalWrite(LEDPIN,HIGH);
+//      delay(100);
+//      digitalWrite(LEDPIN,LOW);
+//      delay(30);
+//    }
+//  }
   buttonState=0;
+  delay(10);
 }
 
 int readButtons() {       //checks which button pressed
@@ -249,11 +250,13 @@ void updateScreen(int buttonState,unsigned int writebuf,int blen) {
     lcd.print(buftext);
     delay(10);
     writeBacklightColor(255,100,0); //yellow
-  } else if((buttonState==3)&(blen>0)) {
+  } else if(buttonState==3) {
     lcd.print("Buffer Cleared. ");
     delay(10);
     writeBacklightColor(255,20,20); //red
-  } else if(buttonState==4) {
+  } else if((buttonState==4)&(blen>0)) {
+    writeBacklightColor(230,50,50); //pink
+    delay(100);
     lcd.print("Written Bits:   ");
     lcd.write(0xFE); // move write position
     lcd.write(0x47);
@@ -277,4 +280,3 @@ void writeBacklightColor(byte R, byte G, byte B) {
   lcd.write(B);
   return;
 }
- 
