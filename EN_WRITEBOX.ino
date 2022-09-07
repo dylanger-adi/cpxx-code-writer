@@ -1,10 +1,9 @@
-//Dylanger Gutierrez, 2022-07-01 (previous date on 0.4 was incorrect)
-//Version 1.0
-//Initial usable release.  
+//Dylanger Gutierrez, 2022-07-01
+//Version 1.1
+//Sped up EN "1" time from 7us to 1.1us using digitalWriteFast library 
 //
 //This is the code to drive the box to control the interface for CP parts.  Normally high, where 1 and 0 are determined by negative width.
 
-//junk for the LCD Screen
 #include "Arduino.h"
 #if defined(ARDUINO_ARCH_SAMD) || defined(__SAM3X8E__)
   // use pin 18 with Due, pin 1 with Zero or M0 Pro 
@@ -14,6 +13,9 @@
   // Create a software serial port!
   SoftwareSerial lcd = SoftwareSerial(0,7); //pin 7 is LCD
 #endif
+
+#include <digitalPinFast.h> //Fast Pin Writing Library
+
 
 #include <stdio.h>
 //define necessary pins
@@ -40,6 +42,8 @@ int buflength=0;
 unsigned int writebuf=0; //should be 16 bit
 int buttonState=0;
 
+digitalPinFast pinEn(ENPIN);
+
 void setup() {
   pinMode(INVPIN, INPUT); //Switch to control if the box is normally high or low
   pinMode(W0PIN, INPUT);  //button; adds a '0' to the buffer
@@ -47,9 +51,11 @@ void setup() {
   pinMode(CLRPIN, INPUT); //button; clears write buffer
   pinMode(WRTPIN, INPUT); //button; writes buffer to the output
 
-  pinMode(ENPIN, OUTPUT); //Drives with digital output signal
+  pinEn.pinModeFast(OUTPUT); //Sets special pin for quick write
+
   pinMode(LEDPIN, OUTPUT);//Blinks when buffer written
-  digitalWrite(ENPIN,LOW);
+  
+  pinEn.digitalWriteFast(LOW);
   digitalWrite(LEDPIN,LOW);
 
   //Below is LCD Stuff
@@ -89,7 +95,7 @@ void setup() {
   //writes splash screen
   lcd.write(0xFE);
   lcd.write(0x40);
-  lcd.write("Code Writer v1.0by Dylanger G.  ");//32 chars; version number
+  lcd.write("Code Writer v1.1by Dylanger G.  ");//32 chars; version number
   delay(10);
 
   // clear screen
@@ -101,7 +107,7 @@ void setup() {
   writeBacklightColor(63,63,63);
 
   //splash screen initial text
-  lcd.write("Code Writer v1.0by Dylanger G.  ");//32 chars; version number
+  lcd.write("Code Writer v1.1by Dylanger G.  ");//32 chars; version number
 
 }
 
@@ -109,11 +115,11 @@ void loop() {
   invSwitchState = digitalRead(INVPIN);
   if(invertOut & (!invSwitchState)) { //non-inverting case if switch is off
     invertOut=false;
-    digitalWrite(ENPIN,LOW);
+    pinEn.digitalWriteFast(LOW);
   }
   if((!invertOut) & invSwitchState) { //inverting case if switch is on; normal mode of operation
     invertOut=true;
-    digitalWrite(ENPIN,HIGH);
+    pinEn.digitalWriteFast(HIGH);
   }
   buttonState = readButtons(); //Button State: 0= no read; 1= "W0"; 2= "W1"; 3="CLR"; 4="WRT"
   if((buttonState==1) & buflength<16) {
@@ -179,28 +185,28 @@ void writeBits(bool invState,unsigned int wbuf,int blen) {  //writes bits to out
   if(invState) {
     for(int k=blen-1;k>=0;k--) {
       if(wbuf & (1<<k)) {
-        digitalWrite(ENPIN, LOW);
-        //delayMicroseconds(tENHI); too slow already
-        digitalWrite(ENPIN, HIGH);
+        pinEn.digitalWriteFast(LOW);
+        delayMicroseconds(tENHI); 
+        pinEn.digitalWriteFast(HIGH);
         delayMicroseconds(TEN-tENHI);
       } else {
-        digitalWrite(ENPIN, LOW);
+        pinEn.digitalWriteFast(LOW);
         delayMicroseconds(tENLO);
-        digitalWrite(ENPIN, HIGH);
+        pinEn.digitalWriteFast(HIGH);
         delayMicroseconds(TEN-tENLO);
       }
     }
   } else {
     for(int k=blen-1;k>=0;k--) {
       if(wbuf & (1<<k)) {
-        digitalWrite(ENPIN, HIGH);
+        pinEn.digitalWriteFast(HIGH);
         //delayMicroseconds(tENHI);
-        digitalWrite(ENPIN, LOW);
+        pinEn.digitalWriteFast(LOW);
         delayMicroseconds(TEN-tENHI);
       } else {
-        digitalWrite(ENPIN, HIGH);
+        pinEn.digitalWriteFast(HIGH);
         delayMicroseconds(tENLO);
-        digitalWrite(ENPIN, LOW);
+        pinEn.digitalWriteFast(LOW);
         delayMicroseconds(TEN-tENLO);
       }
     }
