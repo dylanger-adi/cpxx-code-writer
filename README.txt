@@ -1,4 +1,6 @@
 # cpxx-code-writer
+*READ THIS FILE AS PLAIN TEXT*
+
 Arduino software for one-off device that writes test mode data to cpxx projects
 
 The device I made here is standalone and features a level shifter.  However, for reuse without the interface, the most important part of the code is writeBits(invState,writeBuf,bufLength).
