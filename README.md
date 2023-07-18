@@ -15,17 +15,17 @@ Note 1: uses a library to increase pin write speed: https://www.arduino.cc/refer
 Note 2: If you do not use a level shifter, your IO voltage for your Arduino must be greater than or equal to the supply voltage for the DUT.
 
 
-Timing diagram:
-
-"1":
-               EN high at tDETECT 
-______           _________¦________________________________________
-      |<--------tDETECT-->¦
-      |<-tENHI->|         ¦
-      |_________|         ¦
-"0":
-               EN low at tDETECT
-______                    ¦                             ___________
-      |<--------tDETECT-->¦                            |
-      |<-tENHI------------¦--------------------------> |
-      |___________________¦____________________________|
+//Timing diagram:
+//
+//"1":
+//               EN high at tDETECT 
+//______           _________¦________________________________________
+//      |<--------tDETECT-->¦
+//      |<-tENHI->|         ¦
+//      |_________|         ¦
+//"0":
+//               EN low at tDETECT
+//______                    ¦                             ___________
+//      |<--------tDETECT-->¦                            |
+//      |<-tENHI------------¦--------------------------> |
+//      |___________________¦____________________________|
